@@ -1,10 +1,8 @@
 <?php
-
 namespace App\Http\Controllers;
 
-use App\Http\Requests\StoreServiceRequest;
-use App\Http\Requests\UpdateServiceRequest;
 use App\Models\Service;
+use Illuminate\Http\Request;
 
 class ServiceController extends Controller
 {
@@ -27,9 +25,16 @@ class ServiceController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(StoreServiceRequest $request)
+    public function store(Request $request)
     {
-        //
+        $request->validate([
+            'name'   => 'required|string|max:255',
+            'prefix' => 'nullable|string|max:3',
+        ]);
+
+        Service::create($request->only('name', 'prefix'));
+
+        return back()->with('success', 'Service created successfully.');
     }
 
     /**
@@ -51,9 +56,16 @@ class ServiceController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(UpdateServiceRequest $request, Service $service)
+    public function update(Request $request, Service $service)
     {
-        //
+        $request->validate([
+            'name'   => 'required|string|max:255',
+            'prefix' => 'nullable|string|max:3',
+        ]);
+
+        $service->update($request->only('name', 'prefix'));
+
+        return back()->with('success', 'Service updated successfully.');
     }
 
     /**
@@ -61,6 +73,18 @@ class ServiceController extends Controller
      */
     public function destroy(Service $service)
     {
-        //
+        // Check if the service has any queues
+        if ($service->queues()->exists()) {
+            return back()->withErrors(['Service cannot be deleted because it has associated queues.']);
+        }
+
+        // Check if the service has any counters
+        if ($service->counters()->exists()) {
+            return back()->withErrors(['Service cannot be deleted because it has associated counters.']);
+        }
+
+        $service->delete();
+
+        return back()->with('success', 'Service deleted successfully.');
     }
 }

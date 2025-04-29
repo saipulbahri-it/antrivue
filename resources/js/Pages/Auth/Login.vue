@@ -1,16 +1,19 @@
 <script setup lang="ts">
 import Checkbox from '@/Components/Checkbox.vue';
-import GuestLayout from '@/Layouts/GuestLayout.vue';
 import InputError from '@/Components/InputError.vue';
-import InputLabel from '@/Components/InputLabel.vue';
-import PrimaryButton from '@/Components/PrimaryButton.vue';
-import TextInput from '@/Components/TextInput.vue';
+import GuestLayout from '@/Layouts/GuestLayout.vue';
 import { Head, Link, useForm } from '@inertiajs/vue3';
+import { IconField, IftaLabel, InputIcon, InputText, Password } from 'primevue';
 
 defineProps<{
     canResetPassword?: boolean;
     status?: string;
 }>();
+
+
+const routeUrl = (name: string) => {
+    return route(name);
+};
 
 const form = useForm({
     email: '',
@@ -35,63 +38,80 @@ const submit = () => {
             {{ status }}
         </div>
 
-        <form @submit.prevent="submit">
+        <form @submit.prevent="submit" class="py-5">
             <div>
-                <InputLabel for="email" value="Email" />
-
-                <TextInput
-                    id="email"
-                    type="email"
-                    class="mt-1 block w-full"
-                    v-model="form.email"
-                    required
-                    autofocus
-                    autocomplete="username"
-                />
-
+                <IftaLabel>
+                    <IconField>
+                        <InputIcon class="pi pi-user" />
+                        <InputText
+                            id="email"
+                            v-model="form.email"
+                            class="mt-1 block w-full"
+                            fluid
+                            required
+                            autofocus
+                            autocomplete="username"
+                        />
+                    </IconField>
+                    <label for="email">Email</label>
+                </IftaLabel>
                 <InputError class="mt-2" :message="form.errors.email" />
             </div>
 
-            <div class="mt-4">
-                <InputLabel for="password" value="Password" />
+            <div class="mt-8">
+                <IftaLabel>
+                    <IconField>
+                        <InputIcon class="pi pi-key" />
+                        <Password
+                            v-model="form.password"
+                            inputId="password"
+                            id="password"
+                            class="mt-1 block w-full"
+                            required
+                            autocomplete="current-password"
+                            toggleMask
+                            fluid
+                        />
+                    </IconField>
 
-                <TextInput
-                    id="password"
-                    type="password"
-                    class="mt-1 block w-full"
-                    v-model="form.password"
-                    required
-                    autocomplete="current-password"
-                />
-
+                    <label for="password">Password</label>
+                </IftaLabel>
                 <InputError class="mt-2" :message="form.errors.password" />
             </div>
 
-            <div class="mt-4 block">
+            <div class="mt-8 block">
                 <label class="flex items-center">
                     <Checkbox name="remember" v-model:checked="form.remember" />
-                    <span class="ms-2 text-sm text-gray-600 dark:text-gray-400"
-                        >Remember me</span
-                    >
+                    <span class="ms-2 text-sm text-gray-600 dark:text-gray-400">
+                        Remember me
+                    </span>
                 </label>
             </div>
 
-            <div class="mt-4 flex items-center justify-end">
+            <div class="mt-10 flex items-center justify-end">
                 <Link
                     v-if="canResetPassword"
-                    :href="route('password.request')"
+                    :href="routeUrl('password.request')"
                     class="rounded-md text-sm text-gray-600 underline hover:text-gray-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 dark:text-gray-400 dark:hover:text-gray-100 dark:focus:ring-offset-gray-800"
                 >
-                    Forgot your password?
+                    Lupa password?
                 </Link>
 
-                <PrimaryButton
-                    class="ms-4"
+                <Button
+                    type="submit"
+                    label="Log in"
+                    severity="contrast"
+                    rounded
+                    class="mx-2 ms-4 block px-5"
                     :class="{ 'opacity-25': form.processing }"
                     :disabled="form.processing"
+                    :loading="form.processing"
+                    icon="pi pi-arrow-right"
+                    size="large"
                 >
-                    Log in
-                </PrimaryButton>
+                    <i class="pi pi-arrow-right px-2"></i>
+                    <span class="px-4">Log in</span>
+                </Button>
             </div>
         </form>
     </GuestLayout>

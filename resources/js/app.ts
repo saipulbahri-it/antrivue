@@ -1,8 +1,15 @@
+// import 'primevue/resources/themes/lara-light-green/theme.css';
+import 'primeicons/primeicons.css';
 import '../css/app.css';
 import './bootstrap';
 
 import { createInertiaApp } from '@inertiajs/vue3';
+import Aura from '@primeuix/themes/aura';
 import { resolvePageComponent } from 'laravel-vite-plugin/inertia-helpers';
+import { ConfirmationService } from 'primevue';
+import Button from 'primevue/button';
+import PrimeVue from 'primevue/config';
+import ToastService from 'primevue/toastservice';
 import { createApp, DefineComponent, h } from 'vue';
 import { ZiggyVue } from '../../vendor/tightenco/ziggy';
 
@@ -19,6 +26,14 @@ createInertiaApp({
         createApp({ render: () => h(App, props) })
             .use(plugin)
             .use(ZiggyVue)
+            .use(PrimeVue, {
+                theme: {
+                    preset: Aura,
+                },
+            })
+            .use(ConfirmationService)
+            .use(ToastService)
+            .component('Button', Button)
             .mount(el);
     },
     progress: {

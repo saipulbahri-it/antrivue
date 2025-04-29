@@ -12,7 +12,7 @@ class CounterSeeder extends Seeder
      */
     public function run(): void
     {
-        $pembayaran = Service::where('name', 'Pembayaran')->first();
+        $pembayaran = Service::where('name', 'Umum')->first();
         $informasi  = Service::where('name', 'Informasi')->first();
         $pengaduan  = Service::where('name', 'Pengaduan')->first();
 

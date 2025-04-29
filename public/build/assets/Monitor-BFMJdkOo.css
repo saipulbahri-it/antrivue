@@ -1,0 +1,1 @@
+.queue-display{animation:fadeIn .5s ease}@keyframes fadeIn{0%{opacity:0;transform:translateY(-10px)}to{opacity:1;transform:translateY(0)}}.highlight{background-color:#ffeaa7;border-color:#e17055;transform:scale(1.05)}

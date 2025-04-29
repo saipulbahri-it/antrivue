@@ -1,11 +1,11 @@
-<script setup lang="ts">
-import { ref } from 'vue';
+<script setup>
 import ApplicationLogo from '@/Components/ApplicationLogo.vue';
 import Dropdown from '@/Components/Dropdown.vue';
 import DropdownLink from '@/Components/DropdownLink.vue';
 import NavLink from '@/Components/NavLink.vue';
 import ResponsiveNavLink from '@/Components/ResponsiveNavLink.vue';
 import { Link } from '@inertiajs/vue3';
+import { ref } from 'vue';
 
 const showingNavigationDropdown = ref(false);
 </script>
@@ -34,10 +34,35 @@ const showingNavigationDropdown = ref(false);
                                 class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex"
                             >
                                 <NavLink
+                                    v-if="$page.props.auth.user.role == 'admin'"
                                     :href="route('dashboard')"
                                     :active="route().current('dashboard')"
                                 >
                                     Dashboard
+                                </NavLink>
+                                <NavLink
+                                    :href="route('counter.panel')"
+                                    :active="route().current('counter.*')"
+                                >
+                                    Counter
+                                </NavLink>
+                                <NavLink
+                                    :href="route('queue')"
+                                    :active="route().current('queue')"
+                                >
+                                    Queue
+                                </NavLink>
+                                <NavLink
+                                    :href="route('display')"
+                                    :active="route().current('display')"
+                                >
+                                    Display
+                                </NavLink>
+                                <NavLink
+                                    :href="route('ticket')"
+                                    :active="route().current('ticket')"
+                                >
+                                    Ticket
                                 </NavLink>
                             </div>
                         </div>
@@ -141,10 +166,35 @@ const showingNavigationDropdown = ref(false);
                 >
                     <div class="space-y-1 pb-3 pt-2">
                         <ResponsiveNavLink
+                            v-if="$page.props.auth.user.role == 'admin'"
                             :href="route('dashboard')"
                             :active="route().current('dashboard')"
                         >
                             Dashboard
+                        </ResponsiveNavLink>
+                        <ResponsiveNavLink
+                            :href="route('counter.panel')"
+                            :active="route().current('counter.*')"
+                        >
+                            Counter
+                        </ResponsiveNavLink>
+                        <ResponsiveNavLink
+                            :href="route('queue')"
+                            :active="route().current('queue')"
+                        >
+                            Queue
+                        </ResponsiveNavLink>
+                        <ResponsiveNavLink
+                            :href="route('display')"
+                            :active="route().current('display')"
+                        >
+                            Display
+                        </ResponsiveNavLink>
+                        <ResponsiveNavLink
+                            :href="route('ticket')"
+                            :active="route().current('ticket')"
+                        >
+                            Ticket
                         </ResponsiveNavLink>
                     </div>
 
@@ -184,7 +234,7 @@ const showingNavigationDropdown = ref(false);
                 class="bg-white shadow dark:bg-gray-800"
                 v-if="$slots.header"
             >
-                <div class="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
+                <div class="mx-auto max-w-7xl px-4 py-2 sm:px-6 lg:px-8">
                     <slot name="header" />
                 </div>
             </header>
