@@ -15,9 +15,23 @@ class DatabaseSeeder extends Seeder
         // User::factory(10)->create();
 
         User::factory()->create([
-            'name'  => 'CS User',
-            'email' => 'cs@antrian.com',
+            'name'       => 'Samsul Bahri',
+            'email'      => 'admin@gmail.com',
+            'password'   => bcrypt('admin'),
+            'role'       => 'admin',
+            'counter_id' => null,
         ]);
+
+        // Add 6 counter users with unique emails
+        for ($i = 1; $i <= 6; $i++) {
+            User::factory()->create([
+                'name'       => "Counter User $i",
+                'email'      => "cs$i@gmail.com",
+                'password'   => bcrypt('cs'),
+                'role'       => 'counter',
+                'counter_id' => $i,
+            ]);
+        }
 
         $this->call([
             ServiceSeeder::class,

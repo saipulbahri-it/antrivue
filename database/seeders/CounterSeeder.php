@@ -12,14 +12,20 @@ class CounterSeeder extends Seeder
      */
     public function run(): void
     {
-        $pembayaran = Service::where('name', 'Umum')->first();
-        $informasi  = Service::where('name', 'Informasi')->first();
-        $pengaduan  = Service::where('name', 'Pengaduan')->first();
+        $a = Service::where('name', 'Perdata')->first();
+        $b = Service::where('name', 'Pidana')->first();
+        $c = Service::where('name', 'Hukum, Informasi & Pengaduan')->first();
+        $d = Service::where('name', 'Umum, Layanan Prioritas')->first();
+        $e = Service::where('name', 'E-Court')->first();
+        $f = Service::where('name', 'Inzage')->first();
 
         Counter::insert([
-            ['name' => 'Loket A', 'service_id' => $pembayaran->id],
-            ['name' => 'Loket B', 'service_id' => $informasi->id],
-            ['name' => 'Loket C', 'service_id' => $pengaduan->id],
+            ['name' => 'COUNTER 1', 'service_id' => $a->id],
+            ['name' => 'COUNTER 2', 'service_id' => $b->id],
+            ['name' => 'COUNTER 3', 'service_id' => $c->id],
+            ['name' => 'COUNTER 4', 'service_id' => $d->id],
+            ['name' => 'COUNTER 5', 'service_id' => $e->id],
+            ['name' => 'COUNTER 6', 'service_id' => $f->id],
         ]);
     }
 }
