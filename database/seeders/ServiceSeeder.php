@@ -12,9 +12,12 @@ class ServiceSeeder extends Seeder
     public function run(): void
     {
         Service::insert([
-            ['name' => 'Pembayaran'],
-            ['name' => 'Informasi'],
-            ['name' => 'Pengaduan'],
+            ['prefix' => 'PE', 'name' => 'Perdata'],
+            ['prefix' => 'PI', 'name' => 'Pidana'],
+            ['prefix' => 'HI', 'name' => 'Hukum, Informasi & Pengaduan'],
+            ['prefix' => 'UL', 'name' => 'Umum, Layanan Prioritas'],
+            ['prefix' => 'EC', 'name' => 'E-Court'],
+            ['prefix' => 'IZ', 'name' => 'Inzage'],
         ]);
     }
 }

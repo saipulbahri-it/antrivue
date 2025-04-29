@@ -24,8 +24,9 @@ class QueueService
      */
     public function generateQueueNumber(Service $service): string
     {
-        $today  = Carbon::today();
-        $prefix = strtoupper(Str::substr($service->name, 0, 1));
+        $today = Carbon::today();
+        // $prefix = strtoupper(Str::substr($service->prefix, 0, 1));
+        $prefix = $service->prefix;
 
         // Cari antrean terakhir hari ini untuk layanan ini
         $lastQueue = Queue::where('service_id', $service->id)
@@ -40,7 +41,8 @@ class QueueService
         }
 
         $nextNumber = str_pad($lastNumber + 1, 3, '0', STR_PAD_LEFT);
-        return $prefix . $nextNumber;
+
+        return $prefix . ($prefix ? '-' : '') . $nextNumber;
     }
 
     public function createQueue(Service $service): Queue
@@ -54,22 +56,28 @@ class QueueService
         ]);
     }
 
-    public function getNextQueueForCounter(Counter $counter): ?Queue
+    public function getNextQueueForCounter(Counter $counter, $date = null): ?Queue
     {
+        $date = $date ?? Carbon::today();
+
         return Queue::where('service_id', $counter->service_id)
             ->where('status', 'waiting')
+            ->whereDate('created_at', $date)
             ->orderBy('created_at')
             ->first();
     }
 
-    public function callNextQueue(Counter $counter): ?Queue
+    public function callNextQueue(Counter $counter, $date = null): ?Queue
     {
+        $date = $date ?? Carbon::today();
+
         // Finish previous 'calling' queue for this counter
         Queue::where('counter_id', $counter->id)
             ->where('status', 'calling')
+            ->whereDate('called_at', Carbon::today())
             ->update(['status' => 'skipped']);
 
-        $nextQueue = $this->getNextQueueForCounter($counter);
+        $nextQueue = $this->getNextQueueForCounter($counter, $date);
 
         if (! $nextQueue) {
             return null;
@@ -78,7 +86,7 @@ class QueueService
         $nextQueue->update([
             'counter_id' => $counter->id,
             'status'     => 'calling',
-            'called_at'  => now(),
+            // 'called_at'  => now(),
         ]);
 
         return $nextQueue;

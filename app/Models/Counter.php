@@ -9,7 +9,7 @@ class Counter extends Model
     /** @use HasFactory<\Database\Factories\CounterFactory> */
     use HasFactory;
 
-    protected $fillable = ['name', 'service_id'];
+    protected $fillable = ['name', 'service_id', 'ip_address', 'user_id'];
 
     public function service()
     {
@@ -19,5 +19,21 @@ class Counter extends Model
     public function queues()
     {
         return $this->hasMany(Queue::class);
+    }
+
+    // function last QueueCalled
+    public function lastQueueCalled()
+    {
+        return $this->hasOne(Queue::class)->where('status', 'calling')->latest();
+    }
+
+    public function user()
+    {
+        return $this->belongsTo(User::class);
+    }
+
+    public function isAvailable(): bool
+    {
+        return $this->lastQueueCalled === null;
     }
 }

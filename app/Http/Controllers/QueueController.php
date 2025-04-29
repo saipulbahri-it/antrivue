@@ -6,7 +6,9 @@ use App\Http\Requests\UpdateQueueRequest;
 use App\Models\Counter;
 use App\Models\Queue;
 use App\Models\Service;
+use App\QueueStatus;
 use App\Services\QueueService;
+use Inertia\Inertia;
 
 class QueueController extends Controller
 {
@@ -15,28 +17,41 @@ class QueueController extends Controller
      */
     public function index()
     {
-        Queue::with('service')
-            ->orderBy('created_at', 'desc')
-            ->get()
-            ->map(function ($queue) {
-                return [
-                    'number'  => $queue->number,
-                    'status'  => $queue->status,
-                    'service' => $queue->service->name,
-                ];
-            });
-        return response()->json([
-            'queues' => Queue::with('service')
-                ->orderBy('created_at', 'desc')
-                ->get()
-                ->map(function ($queue) {
-                    return [
-                        'number'  => $queue->number,
-                        'status'  => $queue->status,
-                        'service' => $queue->service->name,
-                    ];
-                }),
-        ]);
+        $status     = request('status');
+        $service_id = request('service_id');
+        $counter_id = request('counter_id');
+
+        $selectedDateInput = request('selectedDate', now());
+
+        if (! \Carbon\Carbon::hasFormat($selectedDateInput, 'Y-m-d')) {
+            return redirect()->route('queue', [
+                'selectedDate' => now()->format('Y-m-d'),
+            ]);
+        }
+
+        $selectedDate = \Carbon\Carbon::parse($selectedDateInput);
+
+        $services = Service::all();
+
+        $counters = Counter::all();
+
+        $queueStatuses = collect(QueueStatus::cases())
+            ->map(fn($status) => ['value' => $status->value, 'label' => ucfirst($status->name)]);
+
+        $queues = Queue::with(['service', 'counter'])
+            ->whereDate('created_at', $selectedDateInput)
+            ->when($service_id, function ($query) use ($service_id) {
+                $query->where('service_id', $service_id);
+            })
+            ->when($counter_id, function ($query) use ($counter_id) {
+                $query->where('counter_id', $counter_id);
+            })
+            ->when($status, function ($query) use ($status) {
+                $query->where('status', $status);
+            })
+            ->orderBy('id')->get();
+
+        return Inertia::render('Queue/Index', compact('queues', 'services', 'counters', 'queueStatuses', 'selectedDate', 'status', 'service_id', 'counter_id'));
     }
 
     /**
@@ -44,7 +59,9 @@ class QueueController extends Controller
      */
     public function create()
     {
-        //
+        $services = Service::all();
+
+        return Inertia::render('Queue/CreateQueue', compact('services'));
     }
 
     /**
@@ -52,12 +69,16 @@ class QueueController extends Controller
      */
     public function store(StoreQueueRequest $request, QueueService $queueService)
     {
-        $service = Service::findOrFail($request->service_id);
-        $queue   = $queueService->createQueue($service);
+        $request->validate([
+            'service_id' => 'required|exists:services,id',
+        ]);
 
-        return response()->json([
-            'message' => 'Antrian berhasil dibuat',
-            'number'  => $queue->number,
+        $service = Service::findOrFail($request->service_id);
+
+        $queue = $queueService->createQueue($service);
+
+        return Inertia::render('Queue/Ticket', [
+            'queue' => $queue->load('service'),
         ]);
     }
 
@@ -66,10 +87,9 @@ class QueueController extends Controller
      */
     public function show(Queue $queue)
     {
-        return response()->json([
-            'number' => $queue->number,
-            'status' => $queue->status,
-        ]);
+        $queue->load(['service', 'counter']);
+
+        return response()->json($queue);
     }
 
     /**
@@ -99,11 +119,13 @@ class QueueController extends Controller
     public function callNext($counterId, QueueService $queueService)
     {
         $counter = Counter::findOrFail($counterId);
-        $queue   = $queueService->callNextQueue($counter);
+        $queue   = $queueService->callNextQueue($counter, today());
 
-        return $queue
-        ? response()->json(['message' => 'Memanggil nomor ' . $queue->number])
-        : response()->json(['message' => 'Tidak ada antrian'], 404);
+        if ($queue) {
+            return back()->with('success', "Memanggil antrean: {$queue->number}");
+        } else {
+            return back()->with('message', "Tidak ada antrian");
+        }
     }
 
     public function finish($queueId, QueueService $queueService)
@@ -111,14 +133,15 @@ class QueueController extends Controller
         $queue = Queue::findOrFail($queueId);
         $queueService->finishQueue($queue);
 
-        return response()->json(['message' => 'Antrean selesai']);
+        return back()->with('success', "Nomor antrean: {$queue->number} Selesai");
     }
 
     public function skip($queueId, QueueService $queueService)
     {
         $queue = Queue::findOrFail($queueId);
+
         $queueService->skipQueue($queue);
 
-        return response()->json(['message' => 'Antrean dilewati']);
+        return back()->with('success', "Antrean dilewati & Memanggil antrean: {$queue->number}");
     }
 }
