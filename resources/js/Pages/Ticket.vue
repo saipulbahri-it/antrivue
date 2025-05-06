@@ -96,10 +96,12 @@
         <div class="px-5 pb-10 text-base text-white">@2025</div>
         <div class="hidden">
             <div ref="componentRef">
-                <div style="text-align: center; font-size: 20px">
+                <div style="text-align: center; font-size: 15px">
                     <br />
                     <p>===== Nomor Antrian =====</p>
-                    <h1 style="font-size: 50px">{{ queue?.number }}</h1>
+                    <h1 style="font-size: 30px; margin: 20px">
+                        {{ queue?.number }}
+                    </h1>
                     <h3>{{ queue?.service?.name }}</h3>
                     <p>=====================</p>
                     <p>{{ new Date().toLocaleString() }}</p>
